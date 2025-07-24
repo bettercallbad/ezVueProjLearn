@@ -55,7 +55,7 @@ export const constantRoutes = [
     }]
   },
   {
-    path:'/product',
+    path: '/product',
     component: Layout,
     name: 'Product',
     meta: { title: '商品管理', icon: 'el-icon-s-goods' },
@@ -64,32 +64,30 @@ export const constantRoutes = [
         path: 'trademark',
         name: 'TradeMark',
         component: () => import('@/views/product/trademark'),
-        meta: { title: '品牌管理', }
+        meta: { title: '品牌管理' }
       },
       {
         path: 'attr',
         name: 'Attr',
         component: () => import('@/views/product/Attr'),
-        meta: { title: '平台属性管理', }
+        meta: { title: '平台属性管理' }
       },
       {
         path: 'spu',
         name: 'Spu',
         component: () => import('@/views/product/Spu'),
-        meta: { title: 'SPU管理', }
+        meta: { title: 'SPU管理' }
       },
       {
         path: 'sku',
         name: 'Sku',
         component: () => import('@/views/product/Sku'),
-        meta: { title: 'SKU管理', }
-      },
-    
-    
+        meta: { title: 'SKU管理' }
+      }
+
     ]
 
   },
-
 
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }

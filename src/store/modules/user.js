@@ -31,12 +31,12 @@ const actions = {
   // user login
   async login({ commit }, userInfo) {
     const { username, password } = userInfo
-    let result =await login({ username: username.trim(), password: password });
+    const result = await login({ username: username.trim(), password: password })
     if (result.code === 20000) {
-        commit('SET_TOKEN', result.data.token)
-        setToken(result.data.token)
-        return 'ok'
-    }else{
+      commit('SET_TOKEN', result.data.token)
+      setToken(result.data.token)
+      return 'ok'
+    } else {
       return Promise.reject(new Error('Login failed'))
     }
   },
