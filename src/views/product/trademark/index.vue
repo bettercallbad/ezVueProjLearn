@@ -32,11 +32,11 @@
             style="text-align: center; margin-top: 20px;">
         </el-pagination>
         <el-dialog :title="dialogTitle" :visible.sync="dialogFormVisible">
-        <el-form :model="form">
-            <el-form-item label="活动名称" label-width="120px">
+        <el-form ref="form" :model="form" :rules="rules" >
+            <el-form-item prop="name" label="活动名称" label-width="120px">
             <el-input v-model="form.name" autocomplete="off"></el-input>
             </el-form-item>
-            <el-form-item label="活动区域" label-width="120px">
+            <el-form-item prop="region" label="活动区域" label-width="120px">
                 <el-upload
                     class="avatar-uploader"
                     action="https://jsonplaceholder.typicode.com/posts/"
@@ -51,7 +51,7 @@
         </el-form>
         <div slot="footer" class="dialog-footer">
             <el-button @click="dialogFormVisible = false">取 消</el-button>
-            <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
+            <el-button type="primary" @click="submitDialog">确 定</el-button>
         </div>
         </el-dialog>
 
@@ -82,6 +82,15 @@ export default {
             },
             dialogTitle: '',
             imageUrl: '', // 用于存储上传的图片URL
+            rules: {
+                name: [
+                    { required: true, message: '请输入商标名称', trigger: 'blur' },
+                    { min: 2, max: 20, message: '商标名称长度在 2 到 20 个字符之间', trigger: 'change' }
+                ],
+                region: [
+                    { required: true, message: '请选择商标区域', trigger: 'change' }
+                ]
+            }
 
         };
     },
@@ -109,28 +118,43 @@ export default {
             this.dialogFormVisible = true;
             this.form.name = row.name;
             this.form.region = row.type; // 假设type是区域
-        },handleAvatarSuccess(res, file) {
-        this.imageUrl = URL.createObjectURL(file.raw);
-      },
-      beforeAvatarUpload(file) {
-        const isJPG = file.type === 'image/jpeg';
-        const isLt2M = file.size / 1024 / 1024 < 2;
-
-        if (!isJPG) {
-          this.$message.error('上传头像图片只能是 JPG 格式!');
-        }
-        if (!isLt2M) {
-          this.$message.error('上传头像图片大小不能超过 2MB!');
-        }
-        return isJPG && isLt2M;
-      },
+        },
+        handleAvatarSuccess(res, file) {
+            this.imageUrl = URL.createObjectURL(file.raw);
+        } ,
+        beforeAvatarUpload(file) {
+            const isJPG = file.type === 'image/jpeg';
+            const isLt2M = file.size / 1024 / 1024 < 2;
+            if (!isJPG) {
+              this.$message.error('上传头像图片只能是 JPG 格式!');
+            }
+            if (!isLt2M) {
+                this.$message.error('上传头像图片大小不能超过 2MB!');
+            }
+            return isJPG && isLt2M;
+        },
+        submitDialog() {
+            // 提交表单的逻辑
+            this.dialogFormVisible = false;
+            
+            this.$refs['form'].validate(valid => {
+                if (valid) {
+                alert('submit!');
+                } else {
+                this.$message.error('shibai');
+                return false;
+          }
+            });
+            
+            // 这里可以添加提交表单的逻辑，比如调用API保存数据
+        },
 
     },
 }
 </script>
 
-<style scoped>  
-    .avatar-uploader .el-upload {
+<style>
+  .avatar-uploader .el-upload {
     border: 1px dashed #d9d9d9;
     border-radius: 6px;
     cursor: pointer;
