@@ -34,7 +34,9 @@ Vue.use(ElementUI, { locale })
 // Vue.use(ElementUI)
 
 Vue.config.productionTip = false
-
+//
+import API from '@/api'
+Vue.prototype.$api = API // 将API挂载到Vue原型上，方便全局访问
 new Vue({
   el: '#app',
   router,
