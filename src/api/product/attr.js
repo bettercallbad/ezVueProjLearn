@@ -18,3 +18,9 @@ export function getCategory3List(category2Id) {
     method: "get",
   });
 }
+export function getAttrList({category1Id, category2Id, category3Id}) {
+  return request({
+    url: `/admin/product/getAttrList/${category1Id}/${category2Id}/${category3Id}`,
+    method: "get",
+  });
+}

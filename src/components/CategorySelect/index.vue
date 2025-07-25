@@ -108,6 +108,7 @@ export default {
       this.categoryForm.category3 = ""; // Reset category 3 selection
     },
     getTableData() {
+      
       if (!this.categoryForm.category1 || !this.categoryForm.category2 || !this.categoryForm.category3) {
         this.$message.error("请先选择完整的分类");
         return;
