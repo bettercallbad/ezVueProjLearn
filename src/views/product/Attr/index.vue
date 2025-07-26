@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-card style="margin: 20px 0px">
-      <CategorySelect @getTableList="getCategory1List"></CategorySelect>
+      <CategorySelect  @getTableList="getCategory1List"></CategorySelect>
     </el-card>
     <el-card>
       <div v-show="isShowTable">
@@ -9,7 +9,7 @@
           type="primary"
           icon="el-icon-plus"
           :disabled="!category3Id"
-          @click="isShowTable = false"
+          @click="addAttrProperty"
           >添加属性</el-button
         >
         <el-table border style="margin-top: 20px" width="100%" :data="attrList">
@@ -130,13 +130,13 @@
 
 <script>
 
-
+import cloneDeep from "lodash/cloneDeep";
 
 export default {
   name: "Attr",
   data() {
     return {
-      isShowTable: false,
+      isShowTable: true,
 
 
       attrList: [],
@@ -189,13 +189,25 @@ export default {
     },
     editAttrProperty(row) {
       this.isShowTable = false;
+      //数据结构存在数组套对象,需要深拷贝
       console.log("Editing attribute property:", row);
+      const rowData=cloneDeep(row);
+      this.attrInfo = { ...rowData, categoryId: this.category3Id, categoryLevel: 3 };
       // Implement the logic to edit the attribute property
     },
     delAttrProperty(row) {
       console.log("Deleting attribute property:", row);
       // Implement the logic to delete the attribute property
       this.$message.success("属性已删除");
+    },
+    addAttrProperty() {
+      this.isShowTable = false;
+      this.attrInfo = {
+        attrName: "",
+        attrValues: [],
+        categoryId: this.category3Id,
+        categoryLevel: 3,
+      };
     },
     addAttrValue() {
       this.attrInfo.attrValues.push({ 
