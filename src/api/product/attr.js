@@ -24,3 +24,11 @@ export function getAttrList({category1Id, category2Id, category3Id}) {
     method: "get",
   });
 }
+//添加属性与属性值的接口
+export function addAttr(attr) {
+  return request({
+    url: "/admin/product/addAttr",
+    method: "post",
+    data: attr,
+  });
+}
