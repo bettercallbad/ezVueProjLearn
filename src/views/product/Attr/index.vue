@@ -110,7 +110,7 @@
                 size="mini"
                 v-if="scope.row.flag"
                 @blur="toLook(scope.row)"
-                :ref="'input'+scope.$index"
+                :ref="'input' + scope.$index"
               ></el-input>
               <span v-else @click="toEdit(scope)">{{
                 scope.row.valuename
@@ -161,7 +161,6 @@ export default {
   },
   methods: {
     getCategory1List({ categoryId, level }) {
-      
       if (level === 1) {
         this.category1Id = categoryId;
         this.category2Id = "";
@@ -207,7 +206,6 @@ export default {
       // Implement the logic to edit the attribute property
     },
     delAttrProperty(row) {
-
       // Implement the logic to delete the attribute property
       this.$message.success("属性已删除");
     },
@@ -225,6 +223,12 @@ export default {
         attrId: this.attrInfo.id,
         valuename: "",
         flag: true,
+      });
+      this.$nextTick(() => {
+        const inputElement = this.$refs['input' + (this.attrInfo.attrValues.length - 1)];
+        if (inputElement) {
+          inputElement.focus();
+        }
       });
     },
     delattrValue(row) {
@@ -254,7 +258,7 @@ export default {
     toEdit(scope) {
       scope.row.flag = true;
       this.$nextTick(() => {
-        const inputElement = this.$refs['input'+scope.$index];
+        const inputElement = this.$refs["input" + scope.$index];
 
         if (inputElement) {
           inputElement.focus();
