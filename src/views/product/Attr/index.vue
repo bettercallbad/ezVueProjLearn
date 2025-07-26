@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-card style="margin: 20px 0px">
-      <CategorySelect  @getTableList="getCategory1List"></CategorySelect>
+      <CategorySelect @getTableList="getCategory1List"></CategorySelect>
     </el-card>
     <el-card>
       <div v-show="isShowTable">
@@ -77,7 +77,13 @@
             ></el-input>
           </el-form-item>
         </el-form>
-        <el-button type="primary" icon="el-icon-plus" @click="addAttrValue" :disabled="!attrInfo.attrName">添加属性值</el-button>
+        <el-button
+          type="primary"
+          icon="el-icon-plus"
+          @click="addAttrValue"
+          :disabled="!attrInfo.attrName"
+          >添加属性值</el-button
+        >
         <el-button @click="isShowTable = true"> 取消 </el-button>
         <el-table
           style="width: 100%; margin: 20px 0px"
@@ -100,23 +106,24 @@
             <template slot-scope="scope">
               <el-input
                 v-model="scope.row.valuename"
-                placeholder="请输入属性值名称" size="mini" v-if="scope.row.flag" @blur="toLook(scope.row)"
+                placeholder="请输入属性值名称"
+                size="mini"
+                v-if="scope.row.flag"
+                @blur="toLook(scope.row)"
+                :ref="'input'+scope.$index"
               ></el-input>
-              <span v-else @click="scope.row.flag=true">{{ scope.row.valuename }}</span>
+              <span v-else @click="toEdit(scope)">{{
+                scope.row.valuename
+              }}</span>
             </template>
-
-
           </el-table-column>
 
-          <el-table-column
-            prop="actions"
-            label="操作"
-            width="width"
-          >
+          <el-table-column prop="actions" label="操作" width="width">
             <template slot-scope="scope">
               <el-button
                 type="danger"
-                size="mini" @click="delattrValue(scope.row)"
+                size="mini"
+                @click="delattrValue(scope.row)"
                 >删除</el-button
               >
             </template>
@@ -130,7 +137,6 @@
 </template>
 
 <script>
-
 import cloneDeep from "lodash/cloneDeep";
 
 export default {
@@ -138,7 +144,6 @@ export default {
   data() {
     return {
       isShowTable: true,
-
 
       attrList: [],
 
@@ -148,8 +153,7 @@ export default {
       //修改或者新增属性使用
       attrInfo: {
         attrName: "",
-        attrValues: [
-        ],
+        attrValues: [],
         categoryId: 0,
         categoryLevel: 3,
       },
@@ -157,7 +161,7 @@ export default {
   },
   methods: {
     getCategory1List({ categoryId, level }) {
-      console.log("Selected Category ID:", categoryId, "Level:", level);
+      
       if (level === 1) {
         this.category1Id = categoryId;
         this.category2Id = "";
@@ -190,17 +194,20 @@ export default {
     },
     editAttrProperty(row) {
       this.isShowTable = false;
-      //数据结构存在数组套对象,需要深拷贝
-      console.log("Editing attribute property:", row);
-      const rowData=cloneDeep(row);
-      this.attrInfo = { ...rowData, categoryId: this.category3Id, categoryLevel: 3 };
-      this.attrInfo.attrValues.forEach(item => {
-        this.$set(item, 'flag', false); // Ensure each item has a flag property
+
+      const rowData = cloneDeep(row);
+      this.attrInfo = {
+        ...rowData,
+        categoryId: this.category3Id,
+        categoryLevel: 3,
+      };
+      this.attrInfo.attrValues.forEach((item) => {
+        this.$set(item, "flag", false); // Ensure each item has a flag property
       });
       // Implement the logic to edit the attribute property
     },
     delAttrProperty(row) {
-      console.log("Deleting attribute property:", row);
+
       // Implement the logic to delete the attribute property
       this.$message.success("属性已删除");
     },
@@ -214,11 +221,11 @@ export default {
       };
     },
     addAttrValue() {
-      this.attrInfo.attrValues.push({ 
-        attrId:this.attrInfo.id,valuename: "" ,flag:true });
-
-
-
+      this.attrInfo.attrValues.push({
+        attrId: this.attrInfo.id,
+        valuename: "",
+        flag: true,
+      });
     },
     delattrValue(row) {
       const index = this.attrInfo.attrValues.indexOf(row);
@@ -228,22 +235,31 @@ export default {
       this.$message.success("属性值已删除");
     },
     toLook(row) {
-      if(row.valuename.trim() === "") {
+      if (row.valuename.trim() === "") {
         this.$message.error("属性值名称不能为空");
         row.flag = true; // Keep the input field active
         return;
       }
-      let isReapt= this.attrInfo.attrValues.some(item=>{
-        if(item.valuename === row.valuename && item!== row) {
+      let isReapt = this.attrInfo.attrValues.some((item) => {
+        if (item.valuename === row.valuename && item !== row) {
           this.$message.error("属性值名称已存在");
           row.flag = true; // Keep the input field active
           return true;
         }
         return false;
       });
-      if(isReapt) return;
+      if (isReapt) return;
       row.flag = false;
+    },
+    toEdit(scope) {
+      scope.row.flag = true;
+      this.$nextTick(() => {
+        const inputElement = this.$refs['input'+scope.$index];
 
+        if (inputElement) {
+          inputElement.focus();
+        }
+      });
     },
     cancelAttrInfo() {
       this.isShowTable = true;
