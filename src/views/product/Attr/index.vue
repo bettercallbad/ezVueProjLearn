@@ -100,8 +100,9 @@
             <template slot-scope="scope">
               <el-input
                 v-model="scope.row.valuename"
-                placeholder="请输入属性值名称" size="mini"
+                placeholder="请输入属性值名称" size="mini" v-if="scope.row.flag" @blur="toLook(scope.row)"
               ></el-input>
+              <span v-else @click="scope.row.flag=true">{{ scope.row.valuename }}</span>
             </template>
 
 
@@ -122,7 +123,7 @@
           </el-table-column>
         </el-table>
         <el-button type="primary">保存</el-button>
-        <el-button @click="isShowTable = true"> 取消 </el-button>
+        <el-button @click="cancelAttrInfo"> 取消 </el-button>
       </div>
     </el-card>
   </div>
@@ -193,6 +194,9 @@ export default {
       console.log("Editing attribute property:", row);
       const rowData=cloneDeep(row);
       this.attrInfo = { ...rowData, categoryId: this.category3Id, categoryLevel: 3 };
+      this.attrInfo.attrValues.forEach(item => {
+        this.$set(item, 'flag', false); // Ensure each item has a flag property
+      });
       // Implement the logic to edit the attribute property
     },
     delAttrProperty(row) {
@@ -211,7 +215,10 @@ export default {
     },
     addAttrValue() {
       this.attrInfo.attrValues.push({ 
-        attrId:undefined,valuename: "" });
+        attrId:this.attrInfo.id,valuename: "" ,flag:true });
+
+
+
     },
     delattrValue(row) {
       const index = this.attrInfo.attrValues.indexOf(row);
@@ -219,6 +226,33 @@ export default {
         this.attrInfo.attrValues.splice(index, 1);
       }
       this.$message.success("属性值已删除");
+    },
+    toLook(row) {
+      if(row.valuename.trim() === "") {
+        this.$message.error("属性值名称不能为空");
+        row.flag = true; // Keep the input field active
+        return;
+      }
+      let isReapt= this.attrInfo.attrValues.some(item=>{
+        if(item.valuename === row.valuename && item!== row) {
+          this.$message.error("属性值名称已存在");
+          row.flag = true; // Keep the input field active
+          return true;
+        }
+        return false;
+      });
+      if(isReapt) return;
+      row.flag = false;
+
+    },
+    cancelAttrInfo() {
+      this.isShowTable = true;
+      this.attrInfo = {
+        attrName: "",
+        attrValues: [],
+        categoryId: 0,
+        categoryLevel: 3,
+      };
     },
   },
 };
