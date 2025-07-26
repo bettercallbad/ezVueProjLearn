@@ -120,16 +120,24 @@
 
           <el-table-column prop="actions" label="操作" width="width">
             <template slot-scope="scope">
+              <el-popconfirm  :title="`确定删除${scope.row.valuename}吗？`" @onConfirm="delattrValue(scope.row)">
+                <el-button
+                  type="warning"
+                  size="mini"
+                  @click="toEdit(scope)"
+                  >编辑</el-button
+                >
               <el-button
                 type="danger"
                 size="mini"
-                @click="delattrValue(scope.row)"
+                slot="reference"
                 >删除</el-button
               >
+              </el-popconfirm>
             </template>
           </el-table-column>
         </el-table>
-        <el-button type="primary">保存</el-button>
+        <el-button type="primary" @click="uploadAttrInfo">保存</el-button>
         <el-button @click="cancelAttrInfo"> 取消 </el-button>
       </div>
     </el-card>
@@ -232,6 +240,8 @@ export default {
       });
     },
     delattrValue(row) {
+      console.log("删除属性值", row);
+      console.log("当前属性值列表", this.attrInfo.attrValues);
       const index = this.attrInfo.attrValues.indexOf(row);
       if (index > -1) {
         this.attrInfo.attrValues.splice(index, 1);
@@ -273,6 +283,48 @@ export default {
         categoryId: 0,
         categoryLevel: 3,
       };
+    },
+    uploadAttrInfo() {
+      this.attrInfo.attrValues = this.attrInfo.attrValues.filter(
+        (item) => {
+          if(item.valuename.trim() !== ""){
+            delete item.flag; // Remove flag property before sending to backend
+            return true;
+          }
+        }
+      );
+      
+      console.log("提交的属性信息", this.attrInfo);
+        const existing = attrList.find(item => item.attrName === attrInfo.attrName);
+
+      if (existing) {
+      // 合并 attrValues，避免重复
+        const merged = [...existing.attrValues, ...attrInfo.attrValues];
+        existing.attrValues = Array.from(new Set(merged));  // 去重
+      } else {
+          // 直接追加
+        attrList.push({
+          attrName: attrInfo.attrName,
+          attrValues: [...attrInfo.attrValues]
+        });
+      }
+
+      // this.$api.attributeApi.addAttr(this.attrInfo).then((res) => {
+      //   if (res.code === 200) {
+      //     this.$message.success("属性信息已保存");
+      //     this.isShowTable = true;
+      //     this.getTableData({
+      //       category1Id: this.category1Id,
+      //       category2Id: this.category2Id,
+      //       category3Id: this.category3Id,
+      //     });
+      //   } else {
+      //     this.$message.error(res.message);
+      //   }
+      // });
+
+      this.$message.success("属性信息已保存");
+      this.isShowTable = true;
     },
   },
 };
