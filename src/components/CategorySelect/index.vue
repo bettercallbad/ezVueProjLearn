@@ -3,19 +3,19 @@
     <el-form :inline="true" :model="categoryForm" class="demo-form-inline">
       
       <el-form-item label="一级分类">
-        <el-select v-model="categoryForm.category1" placeholder="请选择一级分类" @change="getCategory2List">
+        <el-select v-model="categoryForm.category1" placeholder="请选择一级分类" @change="getCategory2List" :disabled="show">
           <el-option v-for="(item) in list1" :key="item.id" 
           :label="item.name" :value="item.id"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="二级分类">
-        <el-select v-model="categoryForm.category2" placeholder="请选择二级分类" @change="getCategory3List">
+        <el-select v-model="categoryForm.category2" placeholder="请选择二级分类" @change="getCategory3List" :disabled="show">
           <el-option v-for="(item) in list2" :key="item.id" 
           :label="item.name" :value="item.id"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="三级分类">
-        <el-select v-model="categoryForm.category3" placeholder="请选择三级分类" @change="getTableData">
+        <el-select v-model="categoryForm.category3" placeholder="请选择三级分类" @change="getTableData" :disabled="show">
           <el-option v-for="(item) in list3" :key="item.id" 
           :label="item.name" :value="item.id"></el-option>
         </el-select>
@@ -49,6 +49,12 @@ export default {
         region: "",
       },
     };
+  },
+  props: {
+    show: {
+      type: Boolean,
+      default: true,
+    },
   },
   methods: {
     onSubmit() {

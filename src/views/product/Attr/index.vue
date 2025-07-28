@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-card style="margin: 20px 0px">
-      <CategorySelect @getTableList="getCategory1List"></CategorySelect>
+      <CategorySelect @getTableList="getCategory1List" :show="!isShowTable"></CategorySelect>
     </el-card>
     <el-card>
       <div v-show="isShowTable">
@@ -38,7 +38,7 @@
               <el-tag
                 type="success"
                 v-for="attrValue in scope.row.attrValues"
-                :key="attrValue.id"
+                :key="attrValue.name"
                 style="margin: 0px 20px"
                 >{{ attrValue.valuename }}</el-tag
               >
@@ -120,19 +120,16 @@
 
           <el-table-column prop="actions" label="操作" width="width">
             <template slot-scope="scope">
-              <el-popconfirm  :title="`确定删除${scope.row.valuename}吗？`" @onConfirm="delattrValue(scope.row)">
-                <el-button
-                  type="warning"
-                  size="mini"
-                  @click="toEdit(scope)"
+              <el-popconfirm
+                :title="`确定删除${scope.row.valuename}吗？`"
+                @onConfirm="delattrValue(scope.row)"
+              >
+                <el-button type="warning" size="mini" @click="toEdit(scope)"
                   >编辑</el-button
                 >
-              <el-button
-                type="danger"
-                size="mini"
-                slot="reference"
-                >删除</el-button
-              >
+                <el-button type="danger" size="mini" slot="reference"
+                  >删除</el-button
+                >
               </el-popconfirm>
             </template>
           </el-table-column>
@@ -233,15 +230,14 @@ export default {
         flag: true,
       });
       this.$nextTick(() => {
-        const inputElement = this.$refs['input' + (this.attrInfo.attrValues.length - 1)];
+        const inputElement =
+          this.$refs["input" + (this.attrInfo.attrValues.length - 1)];
         if (inputElement) {
           inputElement.focus();
         }
       });
     },
     delattrValue(row) {
-      console.log("删除属性值", row);
-      console.log("当前属性值列表", this.attrInfo.attrValues);
       const index = this.attrInfo.attrValues.indexOf(row);
       if (index > -1) {
         this.attrInfo.attrValues.splice(index, 1);
@@ -285,27 +281,38 @@ export default {
       };
     },
     uploadAttrInfo() {
-      this.attrInfo.attrValues = this.attrInfo.attrValues.filter(
-        (item) => {
-          if(item.valuename.trim() !== ""){
-            delete item.flag; // Remove flag property before sending to backend
-            return true;
-          }
+      this.attrInfo.attrValues = this.attrInfo.attrValues.filter((item) => {
+        if (item.valuename.trim() !== "") {
+          delete item.flag; // Remove flag property before sending to backend
+          return true;
         }
+      });
+
+      const existing = this.attrList.find(
+        (item) => item.attrName === this.attrInfo.attrName
       );
-      
-      console.log("提交的属性信息", this.attrInfo);
-        const existing = attrList.find(item => item.attrName === attrInfo.attrName);
 
       if (existing) {
-      // 合并 attrValues，避免重复
-        const merged = [...existing.attrValues, ...attrInfo.attrValues];
-        existing.attrValues = Array.from(new Set(merged));  // 去重
+        // 现有的 valuename 集合，用于快速查重
+        const existingNames = new Set(
+          existing.attrValues.map((item) => item.valuename)
+        );
+
+        this.attrInfo.attrValues.forEach((newItem) => {
+          if (!existingNames.has(newItem.valuename)) {
+            // 添加新项，id 可以是 undefined 或随机字符串
+            existing.attrValues.push({
+              id: undefined, // 或用 Math.random() 生成
+              valuename: newItem.valuename,
+            });
+            existingNames.add(newItem.valuename);
+          }
+        });
       } else {
-          // 直接追加
-        attrList.push({
+        // 直接追加
+        this.attrList.push({
           attrName: attrInfo.attrName,
-          attrValues: [...attrInfo.attrValues]
+          attrValues: [...attrInfo.attrValues],
         });
       }
 
