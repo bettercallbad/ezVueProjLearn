@@ -41,10 +41,8 @@
       </el-form-item>
 
       <el-form-item label="销售属性">
-        <el-select v-model="form.salesAttributes" placeholder="请选择销售属性">
-          <el-option label="颜色" value="color"></el-option>
-          <el-option label="尺寸" value="size"></el-option>
-          <el-option label="材质" value="material"></el-option>
+        <el-select :placeholder="`${unSelectSaleAttr.length}项未展示`" value="">
+          <el-option :label="unselect.name" :value="unselect.id" v-for="(unselect,index) in unSelectSaleAttr" :key="unselect.id"></el-option>
         </el-select>
         <el-button
           type="primary"
@@ -98,6 +96,7 @@
             </template>
           </el-table-column>
           <el-table-column label="操作">
+            
             <template slot-scope="scope">
               <el-button
                 type="danger"
@@ -134,13 +133,25 @@ export default {
         { label: "品牌3", value: 3 },
       ], // 品牌列表
       spuImageList: [], //图片墙
-      salesAttributesList: [], // 销售属性列表
+      salesAttributesList: [
+         { name: "颜色", id: 1 },
+        { name: "尺寸", id: 2 },
+        { name: "版本", id: 3 },
+      ], // 销售属性列表
       form: {
         spuName: "",
         description: "",
         category3Id: 0,
         spuImageList: [],
-        spuSaleAttrList: [],
+        spuSaleAttrList: [
+          {
+          saleAttrName: "颜色",
+          saleAttrValues: [{id:1, valuename: "白色" }, {id:2, valuename: "红色" }],
+        },{
+          saleAttrName: "尺寸",
+          saleAttrValues: [{id:1, valuename: "小" }, {id:2, valuename: "大" }],
+        }
+        ],
       },
     };
   },
@@ -169,7 +180,10 @@ export default {
         {
           saleAttrName: "颜色",
           saleAttrValues: [{id:1, valuename: "白色" }, {id:2, valuename: "红色" }],
-        },
+        },{
+          saleAttrName: "尺寸",
+          saleAttrValues: [{id:1, valuename: "小" }, {id:2, valuename: "大" }],
+        }
       ];
       //模拟品牌接口调用
       this.tradeMarkList = [
@@ -213,6 +227,15 @@ export default {
     }
     
   },
+  computed:{
+    unSelectSaleAttr(){
+      const selectedNames = this.form.spuSaleAttrList.map(item => item.saleAttrName);
+      const unselected = this.salesAttributesList.filter(attr => !selectedNames.includes(attr.name));
+      
+
+      return unselected;
+    }
+  }
 };
 </script>
 
