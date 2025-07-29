@@ -7,10 +7,13 @@
       </el-form-item>
       <el-form-item label="品牌">
         <!-- 分类选择组件 -->
-        <el-select v-model="form.category" placeholder="请选择品牌" value="">
-          <el-option label="分类1" value="1"></el-option>
-          <el-option label="分类2" value="2"></el-option>
-          <el-option label="分类3" value="3"></el-option>
+        <el-select v-model="tradeMarkList.value" placeholder="请选择品牌">
+          <el-option
+            v-for="item in tradeMarkList"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          ></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="SPU描述">
@@ -28,10 +31,11 @@
           list-type="picture-card"
           :on-preview="handlePictureCardPreview"
           :on-remove="handleRemove"
+          :file-list="spuImageList"
         >
           <i class="el-icon-plus"></i>
         </el-upload>
-        <el-dialog :visible.sync="dialogVisible">   
+        <el-dialog :visible.sync="dialogVisible">
           <img width="100%" :src="dialogImageUrl" alt="" />
         </el-dialog>
       </el-form-item>
@@ -42,14 +46,65 @@
           <el-option label="尺寸" value="size"></el-option>
           <el-option label="材质" value="material"></el-option>
         </el-select>
-        <el-button type="primary" icon="el-icon-plus" style="margin-left: 5px;" @click="addSalesAttribute">添加销售属性</el-button>
-        <el-table :data="form.salesAttributesList" style="width: 100%; margin-top: 10px;" border>
-            <el-table-column type="index" label="序号" width="80"></el-table-column>
-          <el-table-column prop="name" label="属性名"></el-table-column>
-          <el-table-column prop="value" label="属性值名称列表"></el-table-column>
+        <el-button
+          type="primary"
+          icon="el-icon-plus"
+          style="margin-left: 5px"
+          @click="addSalesAttribute"
+          >添加销售属性</el-button
+        >
+        <el-table
+          :data="form.spuSaleAttrList"
+          style="width: 100%; margin-top: 10px"
+          border
+        >
+          <el-table-column
+            type="index"
+            label="序号"
+            width="80"
+          ></el-table-column>
+          <el-table-column prop="saleAttrName" label="属性名"></el-table-column>
+          <el-table-column
+            prop="spuSaleAttrList"
+            label="属性值名称列表"
+          >
+            <template slot-scope="scope">
+              <el-tag
+                :key="tag.id"
+                v-for="tag in scope.row.saleAttrValues"
+                closable
+                :disable-transitions="false"
+                @close="handleClose(tag)"
+              >
+                {{ tag.valuename }}
+              </el-tag>
+              <el-input
+                class="input-new-tag"
+                v-if="inputVisible"
+                v-model="inputValue"
+                ref="saveTagInput"
+                size="small"
+                @keyup.enter.native="handleInputConfirm(scope.row)"
+                @blur="handleInputConfirm(scope.row)"
+              >
+              </el-input>
+              <el-button
+                v-else
+                class="button-new-tag"
+                size="small"
+                @click="showInput(scope.row)"
+                >+ New Tag</el-button
+              >
+            </template>
+          </el-table-column>
           <el-table-column label="操作">
             <template slot-scope="scope">
-              <el-button type="danger" size="mini" @click="removeSalesAttribute(scope.$index)">删除</el-button>
+              <el-button
+                type="danger"
+                size="mini"
+                @click="removeSalesAttribute(scope.$index)"
+                >删除</el-button
+              >
             </template>
           </el-table-column>
         </el-table>
@@ -68,12 +123,25 @@ export default {
   name: "SpuForm",
   data() {
     return {
-        dialogImageUrl: '',
-        dialogVisible: false,
-        form: {
-            spuName: "",
-            description: "",
-        },
+      dynamicTags: ['标签一', ],
+      inputVisible: false,
+      inputValue: '',
+      dialogImageUrl: "",
+      dialogVisible: false,
+      tradeMarkList: [
+        { label: "品牌1", value: 1 },
+        { label: "品牌2", value: 2 },
+        { label: "品牌3", value: 3 },
+      ], // 品牌列表
+      spuImageList: [], //图片墙
+      salesAttributesList: [], // 销售属性列表
+      form: {
+        spuName: "",
+        description: "",
+        category3Id: 0,
+        spuImageList: [],
+        spuSaleAttrList: [],
+      },
     };
   },
   methods: {
@@ -82,39 +150,86 @@ export default {
       console.log("提交SPU表单", this.form);
       // 这里可以调用API保存SPU数据
     },
-    handlePictureCardPreview(file){
-        this.dialogImageUrl = file.url;
-        this.dialogVisible = true;
-        console.log(file);
+    handlePictureCardPreview(file) {
+      this.dialogImageUrl = file.url;
+      this.dialogVisible = true;
+      console.log(file);
     },
-    handleRemove(file, fileList){
-        console.log(file, fileList);
+    handleRemove(file, fileList) {
+      console.log(file, fileList);
     },
     resetFields() {
-      this.$emit("changeScene", 0); // 重置场景到SPU列表  
+      this.$emit("changeScene", 0); // 重置场景到SPU列表
     },
     initSPUForm(spu) {
-      
-      this.form = {
-        spuName: "",
-        description: "",
-        category: "",
-        salesAttributes: "",
-        salesAttributesList: [],
-      };
+      // 初始化SPU表单数据
+      this.form.spuName = spu.spuName || "";
+      this.form.description = spu.description || "";
+      this.form.spuSaleAttrList = [
+        {
+          saleAttrName: "颜色",
+          saleAttrValues: [{id:1, valuename: "白色" }, {id:2, valuename: "红色" }],
+        },
+      ];
+      //模拟品牌接口调用
+      this.tradeMarkList = [
+        { label: "品牌1", value: 1 },
+        { label: "品牌2", value: 2 },
+        { label: "品牌3", value: 3 },
+      ];
+      //模拟获取平台的所有销售属性
+      this.salesAttributesList = [
+        { name: "颜色", id: 1 },
+        { name: "尺寸", id: 2 },
+        { name: "版本", id: 3 },
+      ];
     },
-    submitForm() {
-      
+    submitForm() {},
+    addSalesAttribute() {},
+    handleClose(tag) {
+        this.dynamicTags.splice(this.dynamicTags.indexOf(tag), 1);
     },
-    addSalesAttribute(){
-      
-    },
-    
 
+    showInput(row) {
+
+        this.inputVisible = true;
+        this.$nextTick(_ => {
+          this.$refs.saveTagInput.$refs.input.focus();
+        });
+    },
+
+    handleInputConfirm(row) {
+        let inputValue = this.inputValue;
+        let inputid =row.saleAttrValues.length+1;
+        let param={id:inputid,valuename:inputValue};
+        if (inputValue) {
+          row.saleAttrValues.push(param);
+        }
+        this.inputVisible = false;
+        this.inputValue = '';
+    },
+    removeSalesAttribute(index){
+
+    }
+    
   },
- 
-  
 };
 </script>
 
-<style scoped></style>
+<style>
+  .el-tag + .el-tag {
+    margin-left: 10px;
+  }
+  .button-new-tag {
+    margin-left: 10px;
+    height: 32px;
+    line-height: 30px;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  .input-new-tag {
+    width: 90px;
+    margin-left: 10px;
+    vertical-align: bottom;
+  }
+</style>
