@@ -7,9 +7,9 @@
       ></CategorySelect>
     </el-card>
     <el-card style="margin: 20px 0px">
-      <div>
+      <div v-show="sence === 0">
         <!--展示SPU列表-->
-        <el-button type="primary" style="margin-bottom: 5px">添加SPU</el-button>
+        <el-button type="primary" style="margin-bottom: 5px" @click="addSPU">添加SPU</el-button>
         <el-table border style="width: 100%;margin-bottom: 5px" :data="spuList">
           <el-table-column type="index" label="序号" width="80" align="center"></el-table-column>
           <el-table-column prop="spuName" label="SPU名称" width=""></el-table-column>
@@ -35,20 +35,21 @@
           @current-change="handleCurrentChange"
         ></el-pagination>
       </div>
-      <div>
-        <!--添加SPU-->
-      </div>
-      <div>
-        <!--编辑SPU -->
-      </div>
+      <SpuForm v-show="sence === 1" @getTableList="getSpuList"></SpuForm>
+      <SkuForm v-show="sence === 2" @getTableList="getSpuList"></SkuForm>
     </el-card>
   </div>
 </template>
 
 <script>
-
+import SpuForm from "./SpuForm";
+import SkuForm from "./SkuForm";
 export default {
   name: "Spu",
+  components: {
+    SpuForm,
+    SkuForm,
+  },
   data() {
     return {
       page:1,
@@ -59,6 +60,7 @@ export default {
       show: true,
       total: 30,
       spuList: [], // SPU列表数据
+      sence:0, // 场景标识，0表示展示SPU列表，1表示新增或编辑SPU,2表示新增sku
     };
   },
   methods: {
@@ -103,6 +105,10 @@ export default {
     addSKU(row) {
       console.log("添加SKU", row);
       // 这里应该打开添加SKU的对话框
+    },
+    addSPU() {
+      this.sence = 1; // 切换到添加或编辑SPU的场景
+
     },
     editSPU(row) {
       console.log("编辑SPU", row);
