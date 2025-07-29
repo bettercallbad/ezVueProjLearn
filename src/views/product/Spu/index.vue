@@ -9,7 +9,7 @@
     <el-card style="margin: 20px 0px">
       <div v-show="sence === 0">
         <!--展示SPU列表-->
-        <el-button type="primary" style="margin-bottom: 5px" @click="addSPU">添加SPU</el-button>
+        <el-button type="primary" style="margin-bottom: 5px" @click="addSPU" :disabled="!category3Id">添加SPU</el-button>
         <el-table border style="width: 100%;margin-bottom: 5px" :data="spuList">
           <el-table-column type="index" label="序号" width="80" align="center"></el-table-column>
           <el-table-column prop="spuName" label="SPU名称" width=""></el-table-column>
@@ -35,8 +35,8 @@
           @current-change="handleCurrentChange"
         ></el-pagination>
       </div>
-      <SpuForm v-show="sence === 1" @getTableList="getSpuList"></SpuForm>
-      <SkuForm v-show="sence === 2" @getTableList="getSpuList"></SkuForm>
+      <SpuForm v-show="sence === 1" @changeScene="changeScene" ref="spuform"></SpuForm>
+      <SkuForm v-show="sence === 2" ></SkuForm>
     </el-card>
   </div>
 </template>
@@ -86,7 +86,6 @@ export default {
       // 这里应该调用API获取SPU列表数据
       // 目前使用模拟数据
       // 模拟获取SPU列表数据
-      console.log("获取SPU列表数据", params);
       this.spuList = [
         { id: 1, spuName: "SPU1", description: "描述1" },
         { id: 2, spuName: "SPU2", description: "描述2" },
@@ -103,25 +102,28 @@ export default {
       this.getSpuList({ page: this.page, limit: this.limit });
     },
     addSKU(row) {
-      console.log("添加SKU", row);
-      // 这里应该打开添加SKU的对话框
+     
     },
     addSPU() {
       this.sence = 1; // 切换到添加或编辑SPU的场景
 
     },
     editSPU(row) {
-      console.log("编辑SPU", row);
-      // 这里应该打开编辑SPU的对话框
+      this.sence = 1; // 切换到编辑SPU的场景
+      this.$refs.spuform.initSPUForm(row); // 初始化SPU表单
     },
     allSKUofSPU(row) {
-      console.log("查看当前SPU的全部SKU", row);
-      // 这里应该打开查看SKU的对话框
+      
     },
     delSPU(row) {
-      console.log("删除SPU", row);
-      // 这里应该调用API删除SPU
+     
     },
+    changeScene(scene) {
+      this.sence = scene; // 切换场景
+      if (scene === 0) {
+        this.getSpuList({ page: this.page, limit: this.limit }); // 切换回SPU列表时重新获取数据
+      }
+    }
   },
 };
 </script>
