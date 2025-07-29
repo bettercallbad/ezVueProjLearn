@@ -38,7 +38,8 @@ Vue.config.productionTip = false;
 import API from "@/api";
 import CategorySelect from "@/components/CategorySelect";
 Vue.component(CategorySelect.name, CategorySelect); // 全局注册CategorySelect组件
-
+import HintButton from "@/components/HintButton";
+Vue.component(HintButton.name, HintButton); // 全局注册HintButton组件
 Vue.prototype.$api = API; // 将API挂载到Vue原型上，方便全局访问
 new Vue({
   el: "#app",

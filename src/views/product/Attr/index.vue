@@ -134,7 +134,7 @@
             </template>
           </el-table-column>
         </el-table>
-        <el-button type="primary" @click="uploadAttrInfo">保存</el-button>
+        <el-button type="primary" @click="uploadAttrInfo" :disabled="attrInfo.attrValues.length<1">保存</el-button>
         <el-button @click="cancelAttrInfo"> 取消 </el-button>
       </div>
     </el-card>
